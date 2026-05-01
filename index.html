@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flying chicken!!</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        
+        <!-- オーディオ要素全般 (audioフォルダ内に配置してください) -->
+        <audio id="bgm_normal" src="audio/bgm_normal.mp3" loop></audio>
+        <audio id="bgm_boss" src="audio/bgm_boss.mp3" loop></audio>
+        <audio id="bgm_fever" src="audio/bgm_fever.mp3" loop></audio>
+        <audio id="se_hit" src="audio/se_hit.mp3"></audio>
+        <audio id="se_gold" src="audio/se_gold.mp3"></audio>
+        <audio id="se_bomb" src="audio/se_bomb.mp3"></audio>
+        <audio id="se_boss_hit" src="audio/se_boss_hit.mp3"></audio>
+        <audio id="se_button" src="audio/se_button.mp3"></audio>
+        <audio id="se_clear" src="audio/se_clear.mp3"></audio>
+        <audio id="se_fever" src="audio/se_fever.mp3"></audio>
+
+        <!-- UIレイヤー (プレイ中表示) -->
+        <div id="game-ui" class="hidden">
+            <div id="score-board">Score：0</div>
+            <button id="pause-btn">⏸️</button>
+            <button id="audio-toggle-btn" class="audio-toggle">🔊</button>
+            
+            <div id="boss-ui" class="hidden">
+                <div class="boss-name">GIANT CHICKEN</div>
+                <div class="hp-bar-container">
+                    <div id="hp-bar-fill"></div>
+                </div>
+            </div>
+            
+            <!-- フィーバーモード通知 -->
+            <div id="fever-notice" class="hidden text-rainbow">FEVER TIME!<br><span style="font-size:24px; color:#fff;-webkit-text-fill-color:#fff;">NO MISS PENALTY</span></div>
+
+            <!-- 致死量警告ライン -->
+            <div id="danger-line" class="hidden"></div>
+        </div>
+
+        <!-- 専用の独立したタイトル拝見アニメーションコンテナ (物理エンジン無関係) -->
+        <div id="title-background"></div>
+
+        <!-- タイトル画面 -->
+        <div id="title-screen" class="overlay-screen title-overlay">
+            <div class="title-content">
+                <h1 class="main-title">Flying Chicken!!</h1>
+                <p class="title-sub">Tap to shoot them down</p>
+                <div class="button-group">
+                    <button id="start-normal-btn" class="main-btn" style="margin-bottom: 10px;">NORMAL PLAY</button>
+                    <button id="start-endless-btn" class="main-btn endless-btn">ENDLESS MODE</button>
+                </div>
+                <div style="margin-top:20px;">
+                    <button id="title-audio-btn" class="audio-toggle">Sound: ON 🔊</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ポーズ画面 -->
+        <div id="pause-overlay" class="hidden overlay-screen">
+            <div class="overlay-content">
+                <div class="main-text">PAUSED</div>
+                <div class="button-group">
+                    <button id="resume-btn" class="main-btn">Resume</button>
+                    <button class="back-to-title-btn main-btn" style="background: #555; border-color: #888;">Back to Title</button>
+                </div>
+                <p class="sub-text" style="margin-top: 20px;">(or press SPACE)</p>
+            </div>
+        </div>
+
+        <!-- ゲームクリア画面 (ノーマルモード用) -->
+        <div id="clear-overlay" class="hidden overlay-screen">
+            <div class="overlay-content">
+                <div class="main-text text-rainbow">GAME CLEAR</div>
+                <p class="sub-text">Giant Chicken Defeated!</p>
+                <div class="button-group">
+                    <button class="retry-btn main-btn">Retry</button>
+                    <button class="back-to-title-btn main-btn" style="background: #555; border-color: #888;">Back to Title</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- エンドレスモード：ボス撃破後の休憩画面 -->
+        <div id="endless-break-overlay" class="hidden overlay-screen">
+            <div class="overlay-content">
+                <div class="main-text text-rainbow">BOSS DEFEATED!</div>
+                <p class="sub-text">Push your limits!</p>
+                <button id="endless-resume-btn" class="main-btn endless-btn">Continue</button>
+            </div>
+        </div>
+
+        <!-- ゲームオーバー画面 -->
+        <div id="gameover-overlay" class="hidden overlay-screen">
+            <div class="overlay-content">
+                <div class="main-text" style="color: red;">GAME OVER</div>
+                <p class="sub-text" id="final-score-text">Too many chickens!</p>
+                <div class="button-group">
+                    <button class="retry-btn main-btn">Retry</button>
+                    <button class="back-to-title-btn main-btn" style="background: #555; border-color: #888;">Back to Title</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- エフェクトレイヤー -->
+        <div id="effects-container"></div>
+        
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>
