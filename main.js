@@ -706,10 +706,13 @@ function init() {
             if (highestPileY < DangerHeight) {
                 isGameOver = true;
                 dangerLine.classList.add('hidden');
-                document.getElementById('final-score-text').innerText = `Result Score：${score}\nToo many chickens!`;
-                document.getElementById('gameover-overlay').classList.remove('hidden');
                 bgmNormal.pause(); bgmBoss.pause();
-                engine.timing.timeScale = 0;
+                
+                setTimeout(() => {
+                    document.getElementById('final-score-text').innerText = `Result Score：${score}\nToo many chickens!`;
+                    document.getElementById('gameover-overlay').classList.remove('hidden');
+                    engine.timing.timeScale = 0;
+                }, 1500);
             }
         } else {
             dangerLine.classList.add('hidden');
