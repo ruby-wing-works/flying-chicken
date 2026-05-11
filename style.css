@@ -154,20 +154,21 @@ body {
     position: relative;
 }
 
+/* クレジットスクロールの基本スタイル (アニメーションはJSで動的に生成) */
 #credits-content {
     position: absolute;
     width: 100%;
-    top: 100%; /* 画面外下からスタート */
-    animation: credits-scroll 50s linear forwards; /* 50秒に延長して読みやすく */
     text-align: center;
     padding: 0 20px;
+    will-change: transform;
 }
 
-@keyframes credits-scroll {
-    0% { top: 100%; }
-    90% { top: -250%; } /* 少し位置を上げて Springin' を隠す */
-    96% { top: -250%; } /* 停止 */
-    100% { top: -320%; } /* 最後まで流し切る */
+@keyframes credits-scroll-dynamic {
+    /* JSで --scroll-start, --scroll-pause, --scroll-end を設定 */
+    0% { transform: translateY(var(--scroll-start)); }
+    90% { transform: translateY(var(--scroll-pause)); }
+    96% { transform: translateY(var(--scroll-pause)); }
+    100% { transform: translateY(var(--scroll-end)); }
 }
 
 .credits-section {
@@ -179,16 +180,21 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 80px; /* スケールアップに合わせて広げる */
 }
 
 .chicken-icon {
     width: 100px;
     height: 100px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+}
+
+/* 巨大化したチキン用のマージン調整 */
+#icon-dead, #icon-boss {
+    margin-bottom: 55px;
 }
 
 #icon-rainbow {
@@ -211,17 +217,21 @@ body {
 }
 
 .credits-section p {
-    font-size: 18px;
+    font-size: 19px; /* 少し大きく */
+    font-weight: 500; /* 少し太くしてチラつき防止 */
     color: #ffffff;
     margin-bottom: 10px;
     line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 視認性向上 */
+    -webkit-font-smoothing: antialiased;
 }
 
 .credits-thanks {
-    font-size: 36px !important;
-    font-weight: bold;
+    font-size: 42px !important; /* さらに大きく */
+    font-family: 'Arial Black', sans-serif;
+    font-weight: 900;
     color: #ffcc00 !important;
-    text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+    text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.5);
     margin-top: 50px;
 }
 

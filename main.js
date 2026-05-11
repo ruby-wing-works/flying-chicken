@@ -378,6 +378,9 @@ function init() {
                 setBackgroundAnimation(false);
                 return;
             }
+            // タブが非アクティブな間はチキンを生成しない（溜まり防止）
+            if (document.hidden) return;
+            
             spawnBackgroundChicken(false);
         }, 250); // 元の200msから250msへ(湧き頻度を20%削減)
     }
@@ -537,14 +540,26 @@ function init() {
         document.getElementById('icon-bomb').style.backgroundImage = `url("${bombTextures[0]}")`;
         document.getElementById('icon-trap').style.backgroundImage = `url("${trapTextures[0]}")`;
         document.getElementById('icon-dead').style.backgroundImage = `url("${deadChickenTexture}")`;
-        document.getElementById('icon-dead').style.transform = 'scale(1.5)'; // ジャイアントと同じ大きさ
+        document.getElementById('icon-dead').style.transform = 'scale(2.5)'; // 超巨大！
         document.getElementById('icon-boss').style.backgroundImage = `url("${normalTextures[0]}")`;
-        document.getElementById('icon-boss').style.transform = 'scale(1.5)'; // ボスっぽく大きく
+        document.getElementById('icon-boss').style.transform = 'scale(2.5)'; // 超巨大！
 
-        // アニメーションをリセット
+        // アニメーションの動的生成
+        const containerHeight = creditsOverlay.offsetHeight;
+        const contentHeight = creditsContent.offsetHeight;
+        
+        // THANK YOU を中央に配置するための値を計算
+        const pausePos = (containerHeight / 2) - contentHeight + 40; // 少し下目に調整
+        const startPos = containerHeight;
+        const endPos = -contentHeight - 100;
+
+        creditsContent.style.setProperty('--scroll-start', `${startPos}px`);
+        creditsContent.style.setProperty('--scroll-pause', `${pausePos}px`);
+        creditsContent.style.setProperty('--scroll-end', `${endPos}px`);
+        
         creditsContent.style.animation = 'none';
         creditsContent.offsetHeight; // reflow
-        creditsContent.style.animation = 'credits-scroll 50s linear forwards';
+        creditsContent.style.animation = `credits-scroll-dynamic 50s linear forwards`;
 
         // 羽ばたきアニメーションの開始
         if (creditsWingInterval) clearInterval(creditsWingInterval);
@@ -630,6 +645,18 @@ function init() {
 
     creditsOverlay.addEventListener('click', () => hideCredits(false));
     creditsContent.addEventListener('animationend', () => hideCredits(true));
+    
+    // タブ切り替え時の挙動（スタッフロールのBGM同期）
+    document.addEventListener('visibilitychange', () => {
+        if (isCreditsMode && audioEnabled) {
+            if (document.hidden) {
+                bgmNormal.pause();
+                // CSSアニメーションはブラウザ側で自動停止する
+            } else {
+                bgmNormal.play().catch(e=>{});
+            }
+        }
+    });
     
     // 隠しトリガーの初期化
     const creditsTrigger = document.getElementById('hidden-credits-trigger');
