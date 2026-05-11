@@ -74,13 +74,15 @@
 
         <!-- ゲームクリア画面 (ノーマルモード用) -->
         <div id="clear-overlay" class="hidden overlay-screen">
-            <div class="overlay-content">
+            <div class="overlay-content" style="position: relative;">
                 <div class="main-text text-rainbow">GAME CLEAR</div>
                 <p class="sub-text">Giant Chicken Defeated!</p>
                 <div class="button-group">
                     <button class="retry-btn main-btn">Retry</button>
                     <button class="back-to-title-btn main-btn" style="background: #555; border-color: #888;">Back to Title</button>
                 </div>
+                <!-- 隠しクレジットトリガー -->
+                <div id="hidden-credits-trigger" title="???"></div>
             </div>
         </div>
 
@@ -101,6 +103,79 @@
                 <div class="button-group">
                     <button class="retry-btn main-btn">Retry</button>
                     <button class="back-to-title-btn main-btn" style="background: #555; border-color: #888;">Back to Title</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- クレジット画面 -->
+        <div id="credits-overlay" class="hidden overlay-screen">
+            <div id="credits-container">
+                <div id="credits-content">
+                    <div class="credits-section">
+                        <h2>Friends</h2>
+                        
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-normal"></div>
+                            <p>Normal Chicken</p>
+                        </div>
+                        
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-gold"></div>
+                            <p>Golden Chicken</p>
+                        </div>
+
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-rainbow"></div>
+                            <p>Rainbow Chicken</p>
+                        </div>
+
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-bomb"></div>
+                            <p>Bomb</p>
+                        </div>
+
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-trap"></div>
+                            <p>Poison Chicken</p>
+                        </div>
+
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-dead"></div>
+                            <p>Death Chicken</p>
+                        </div>
+
+                        <div class="chicken-intro">
+                            <div class="chicken-icon" id="icon-boss"></div>
+                            <p>Giant Chicken</p>
+                        </div>
+                    </div>
+                    
+                    <div class="credits-section">
+                        <h2>Credits</h2>
+                        <h3>■ Original Concept</h3>
+                        <p>After Dark『Flying Toasters』</p>
+                    </div>
+
+                    <div class="credits-section">
+                        <h3>■ Planning & Production</h3>
+                        <p>Ruby Wing Works</p>
+                    </div>
+
+                    <div class="credits-section">
+                        <h3>■ Development Tool</h3>
+                        <p>Google Antigravity</p>
+                        <p>Google Gemini</p>
+                    </div>
+
+                    <div class="credits-section">
+                        <h3>■ Music & Sound Effects</h3>
+                        <p>MaouDamashii</p>
+                        <p>Springinʼ</p>
+                    </div>
+
+                    <div class="credits-section" style="margin-top: 600px; padding-bottom: 0;">
+                        <p class="credits-thanks">THANK YOU FOR PLAYING!</p>
+                    </div>
                 </div>
             </div>
         </div>

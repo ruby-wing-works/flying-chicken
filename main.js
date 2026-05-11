@@ -12,6 +12,7 @@ let isBossMode = false;
 let isGameCleared = false;
 let isGameOver = false;
 let isWaitingForBossClearOK = false;
+let isCreditsMode = false;
 
 // 新規ステータス管理
 let playMode = 'normal'; // 'normal' または 'endless'
@@ -25,6 +26,7 @@ let audioEnabled = true;
 let bossDeadDropTimer = 0; // ボス戦中のペナルティタイマー
 let lastFeverEndTime = 0; // フィーバー終了時刻
 let feverFadeInterval = null; // フィーバーテキスト消去用タイマー
+let creditsWingInterval = null; // クレジットの羽ばたき用タイマー
 
 const CAT_DEFAULT = 0x0001;
 const CAT_TARGET = 0x0002;
@@ -86,6 +88,8 @@ function init() {
     const dangerLine = document.getElementById('danger-line');
     const endlessNotice = document.getElementById('endless-notice');
     const feverNotice = document.getElementById('fever-notice');
+    const creditsOverlay = document.getElementById('credits-overlay');
+    const creditsContent = document.getElementById('credits-content');
     
     function playAudio(audioObj) {
         if (!audioEnabled || !audioObj) return;
@@ -165,6 +169,10 @@ function init() {
     for(let i=0; i<12; i++) { rainbowTextures.push(createTexture(i, 'rainbow')); }
     const bossHitTexture = createTexture(0, 'boss-hit');
     const deadChickenTexture = createTexture(0, 'dead');
+
+    // 隠しクレジットトリガーのアイコンを設定
+    const triggerEl = document.getElementById('hidden-credits-trigger');
+    if (triggerEl) triggerEl.style.backgroundImage = `url("${rainbowTextures[0]}")`;
 
     const wpStr = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="30" fill="rgba(255, 0, 0, 0.4)" stroke="#ff0000" stroke-width="8" stroke-dasharray="10 5" /><circle cx="50" cy="50" r="10" fill="#ff0000" /></svg>`;
     const weakPointTexture = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(wpStr)}`;
@@ -365,8 +373,8 @@ function init() {
         for(let i=0; i<20; i++) spawnBackgroundChicken(true);
         
         bgAnimInterval = setInterval(() => {
-            // タイトルかボスモード以外なら止める
-            if (!isTitleMode && !isBossMode) {
+            // タイトル、ボス、またはクレジットモード以外なら止める
+            if (!isTitleMode && !isBossMode && !isCreditsMode) {
                 setBackgroundAnimation(false);
                 return;
             }
@@ -375,7 +383,7 @@ function init() {
     }
 
     function spawnBackgroundChicken(isInit) {
-        if (!isTitleMode && !isBossMode) return;
+        if (!isTitleMode && !isBossMode && !isCreditsMode) return;
         const rand = Math.random();
         let type = 'normal';
         let texArray = normalTextures;
@@ -419,7 +427,7 @@ function init() {
         let frame = 0;
 
         function updateAnim() {
-            if (!isTitleMode || !document.body.contains(el)) return;
+            if ((!isTitleMode && !isCreditsMode) || !document.body.contains(el)) return;
             tick++;
             
             // 羽ばたきアニメーション
@@ -497,6 +505,138 @@ function init() {
 
     document.getElementById('start-normal-btn').addEventListener('click', () => startPlay('normal'));
     document.getElementById('start-endless-btn').addEventListener('click', () => startPlay('endless'));
+
+    function showCredits() {
+        if (isCreditsMode) return;
+        isCreditsMode = true;
+        
+        // すべてのオーバーレイとUIを隠す
+        titleScreen.classList.add('hidden');
+        gameUi.classList.add('hidden');
+        document.getElementById('boss-ui').classList.add('hidden');
+        dangerLine.classList.add('hidden');
+        document.getElementById('clear-overlay').classList.add('hidden');
+        document.getElementById('gameover-overlay').classList.add('hidden');
+        document.getElementById('pause-overlay').classList.add('hidden');
+        document.getElementById('endless-break-overlay').classList.add('hidden');
+        
+        creditsOverlay.classList.remove('hidden');
+
+        // 物理オブジェクト（チキンや死体）をすべて消去
+        const currentBodies = Composite.allBodies(engine.world);
+        for (let b of currentBodies) {
+            if (b.label === 'target' || b.label === 'dead-chicken' || b.label === 'boss' || b.label === 'weak-point') {
+                Composite.remove(engine.world, b);
+            }
+        }
+        
+        // アイコンの注入
+        document.getElementById('icon-normal').style.backgroundImage = `url("${normalTextures[0]}")`;
+        document.getElementById('icon-gold').style.backgroundImage = `url("${goldTextures[0]}")`;
+        document.getElementById('icon-rainbow').style.backgroundImage = `url("${rainbowTextures[0]}")`;
+        document.getElementById('icon-bomb').style.backgroundImage = `url("${bombTextures[0]}")`;
+        document.getElementById('icon-trap').style.backgroundImage = `url("${trapTextures[0]}")`;
+        document.getElementById('icon-dead').style.backgroundImage = `url("${deadChickenTexture}")`;
+        document.getElementById('icon-dead').style.transform = 'scale(1.5)'; // ジャイアントと同じ大きさ
+        document.getElementById('icon-boss').style.backgroundImage = `url("${normalTextures[0]}")`;
+        document.getElementById('icon-boss').style.transform = 'scale(1.5)'; // ボスっぽく大きく
+
+        // アニメーションをリセット
+        creditsContent.style.animation = 'none';
+        creditsContent.offsetHeight; // reflow
+        creditsContent.style.animation = 'credits-scroll 50s linear forwards';
+
+        // 羽ばたきアニメーションの開始
+        if (creditsWingInterval) clearInterval(creditsWingInterval);
+        let frame = 0;
+        creditsWingInterval = setInterval(() => {
+            frame = (frame + 1) % 4;
+            const rbFrame = (frame * 3) % 12; // レインボーは12段階なので調整
+            document.getElementById('icon-normal').style.backgroundImage = `url("${normalTextures[frame]}")`;
+            document.getElementById('icon-gold').style.backgroundImage = `url("${goldTextures[frame]}")`;
+            document.getElementById('icon-rainbow').style.backgroundImage = `url("${rainbowTextures[rbFrame]}")`;
+            document.getElementById('icon-bomb').style.backgroundImage = `url("${bombTextures[frame]}")`;
+            document.getElementById('icon-trap').style.backgroundImage = `url("${trapTextures[frame]}")`;
+            document.getElementById('icon-boss').style.backgroundImage = `url("${normalTextures[frame]}")`;
+        }, 120);
+
+        // BGM再生 (冒頭の空白を考慮して少し遅らせる)
+        if (audioEnabled) {
+            bgmNormal.volume = 1.0;
+            bgmNormal.currentTime = 0;
+            setTimeout(() => {
+                if (isCreditsMode) bgmNormal.play().catch(e=>{});
+            }, 300);
+        }
+        
+        // 背景アニメーションも（もし止まってたら）再開
+        setBackgroundAnimation(true);
+    }
+
+    function hideCredits(isAuto = false) {
+        if (!isCreditsMode) return;
+        
+        if (creditsWingInterval) {
+            clearInterval(creditsWingInterval);
+            creditsWingInterval = null;
+        }
+
+        if (isAuto) {
+            // オートリターンの場合はフェード -> 待ち -> 戻る
+            if (audioEnabled && !bgmNormal.paused) {
+                let vol = 1.0;
+                const fadeInterval = setInterval(() => {
+                    vol -= 0.02; // ゆっくりフェード
+                    if (vol <= 0) {
+                        clearInterval(fadeInterval);
+                        bgmNormal.pause();
+                        bgmNormal.volume = 1.0;
+                        
+                        // BGMが消えた後に一拍おいてからタイトルへ
+                        setTimeout(() => {
+                            isCreditsMode = false;
+                            creditsOverlay.classList.add('hidden');
+                            gameUi.classList.add('hidden'); // UIを確実に隠す
+                            titleScreen.classList.remove('hidden');
+                            isTitleMode = true; // タイトルモードへ復帰
+                            setBackgroundAnimation(true);
+                        }, 800);
+                    } else {
+                        bgmNormal.volume = vol;
+                    }
+                }, 30);
+            } else {
+                isCreditsMode = false;
+                creditsOverlay.classList.add('hidden');
+                titleScreen.classList.remove('hidden');
+                isTitleMode = true;
+                setBackgroundAnimation(true);
+            }
+        } else {
+            // クリックなどの手動操作は即座にタイトルへ
+            isCreditsMode = false;
+            if (audioEnabled) {
+                bgmNormal.pause();
+                bgmNormal.volume = 1.0;
+            }
+            creditsOverlay.classList.add('hidden');
+            gameUi.classList.add('hidden');
+            titleScreen.classList.remove('hidden');
+            isTitleMode = true;
+            setBackgroundAnimation(true);
+            playAudio(seButton);
+        }
+    }
+
+    creditsOverlay.addEventListener('click', () => hideCredits(false));
+    creditsContent.addEventListener('animationend', () => hideCredits(true));
+    
+    // 隠しトリガーの初期化
+    const creditsTrigger = document.getElementById('hidden-credits-trigger');
+    creditsTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showCredits();
+    });
 
     document.getElementById('endless-resume-btn').addEventListener('click', () => {
         playAudio(seButton);
@@ -791,6 +931,13 @@ function init() {
             togglePause(); 
         }
         // デバッグコマンド
+        if (e.key === '9' && isTitleMode && !isCreditsMode) {
+            showCredits();
+        } else if (isCreditsMode) {
+            hideCredits();
+            return;
+        }
+
         if (e.code === 'KeyD' && !isTitleMode) { score += 9950; scoreBoard.innerText = `Score：${score}`; }
         // フィーバーテスト用
         if (e.code === 'KeyF' && !isTitleMode) { score = 19950; scoreBoard.innerText = `Score：${score}`; }

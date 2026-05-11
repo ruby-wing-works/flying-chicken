@@ -131,6 +131,100 @@ body {
 @keyframes rainbow-anim { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
 #effects-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: hidden; }
+
+/* クレジット画面のスタイル */
+#credits-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 150;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 上から流すために top 合わせ */
+    overflow: hidden;
+}
+
+#credits-overlay.hidden {
+    display: none;
+}
+
+#credits-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#credits-content {
+    position: absolute;
+    width: 100%;
+    top: 100%; /* 画面外下からスタート */
+    animation: credits-scroll 50s linear forwards; /* 50秒に延長して読みやすく */
+    text-align: center;
+    padding: 0 20px;
+}
+
+@keyframes credits-scroll {
+    0% { top: 100%; }
+    90% { top: -250%; } /* 少し位置を上げて Springin' を隠す */
+    96% { top: -250%; } /* 停止 */
+    100% { top: -320%; } /* 最後まで流し切る */
+}
+
+.credits-section {
+    margin-bottom: 80px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.chicken-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.chicken-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#icon-rainbow {
+    animation: rainbow-anim 1.5s linear infinite; /* 少しゆっくりにして目に優しく */
+    filter: saturate(2) brightness(1.1);
+}
+
+.credits-section h2 {
+    font-size: 28px;
+    color: #ffcc00;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.credits-section h3 {
+    font-size: 22px;
+    color: #ff9900;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.credits-section p {
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.credits-thanks {
+    font-size: 36px !important;
+    font-weight: bold;
+    color: #ffcc00 !important;
+    text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+    margin-top: 50px;
+}
+
 .effect { position: absolute; transform: translate(-50%, -50%); pointer-events: none; animation-fill-mode: forwards; }
 
 .effect-normal { font-size: 40px; animation: anim-normal 0.4s ease-out forwards; }
@@ -154,4 +248,26 @@ body {
     0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
     20% { transform: translate(-50%, -100%) scale(1.2); opacity: 1; }
     100% { transform: translate(-50%, -200%) scale(1.0); opacity: 0; }
+}
+
+/* 隠しクレジットトリガーのスタイル */
+#hidden-credits-trigger {
+    position: absolute;
+    bottom: -50px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+    z-index: 10;
+}
+#hidden-credits-trigger:hover {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,0.9));
 }
